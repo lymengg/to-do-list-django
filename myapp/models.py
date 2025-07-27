@@ -39,3 +39,11 @@ class Task(models.Model):
 
     def str(self):
         return self.title
+
+
+class Note(models.Model):
+    content = models.TextField(max_length=500)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="tasks")
+
+    def str(self):
+        return self.content

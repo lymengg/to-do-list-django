@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
-from .models import Tag, Category
-from .models import Task
-from .serializer import CategorySerializer, TagSerializer, TaskSerializer
+from .models import Tag, Category, Task, Note
+from .serializer import CategorySerializer, TagSerializer, TaskSerializer, NoteSerializer
+
 
 class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.all()
@@ -14,5 +14,22 @@ class TagViewSet(ModelViewSet):
 
 
 class TaskViewSet(ModelViewSet):
-    queryset = Task.objects.all()
+    queryset = Task.objects.all()   # <-- Add this line
     serializer_class = TaskSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        category_id = self.request.query_params.get('category')
+        if category_id:
+            queryset = queryset.filter(category_id=category_id)
+        return queryset
+
+
+class NoteViewSet(ModelViewSet):
+    serializer_class = NoteSerializer
+
+    def get_queryset(self):
+        return Note.objects.filter(task_id=self.kwargs['task_pk'])
+
+    def perform_create(self, serializer):
+        serializer.save(task_id=self.kwargs['task_pk'])
