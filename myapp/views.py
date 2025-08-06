@@ -1,6 +1,7 @@
+from rest_framework import permissions
 from rest_framework.viewsets import ModelViewSet
-from .models import Tag, Category, Task, Note
-from .serializer import CategorySerializer, TagSerializer, TaskSerializer, NoteSerializer
+from .models import Tag, Category, Task, Note, CustomUser
+from .serializer import CategorySerializer, TagSerializer, TaskSerializer, NoteSerializer, CustomUserSerializer
 
 
 class CategoryViewSet(ModelViewSet):
@@ -33,3 +34,7 @@ class NoteViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(task_id=self.kwargs['task_pk'])
+
+class CustomUserViewSet(ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
