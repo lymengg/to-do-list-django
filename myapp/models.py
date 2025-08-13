@@ -1,3 +1,4 @@
+from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -37,7 +38,7 @@ class Task(models.Model):
     status = models.CharField(max_length=20, choices=STATUS, default='INIT')
     updated_at = models.DateTimeField(auto_now=True)
 
-    def str(self):
+    def __str__(self):
         return self.title
 
 
@@ -45,10 +46,47 @@ class Note(models.Model):
     content = models.TextField(max_length=500)
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="tasks")
 
-    def str(self):
+    def __str__(self):
         return self.content
 
-class CustomUser(AbstractUser):
-    phone_number = models.CharField(max_length=15, blank=True)
-    address = models.CharField(max_length=255, blank=True)
+class CustomUserManager(BaseUserManager):
+    def create_user(self, username, email, address, first_name=None, last_name=None, password=None, **extra_fields):
+        if not username or username.strip() == '':
+            raise ValueError('The Username field is required and cannot be empty.')
+        if not email or email.strip() == '':
+            raise ValueError('The Email field is required and cannot be empty.')
+        if not address or address.strip() == '':
+            raise ValueError('The Address field is required and cannot be empty.')
 
+        email = self.normalize_email(email)
+        user = self.model(
+            username=username,
+            email=email,
+            address=address,
+            first_name=first_name,
+            last_name=last_name,
+            **extra_fields
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, username, email, address, first_name=None, last_name=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(username, email, address, first_name, last_name, password, **extra_fields)
+
+class CustomUser(AbstractUser):
+    email = models.EmailField(max_length=255, blank=False)
+    phone_number = models.CharField(max_length=15, blank=True)
+    address = models.CharField(max_length=255, blank=False)  # Make required here
+
+    REQUIRED_FIELDS = ['email', 'address']
+
+    objects = CustomUserManager()

@@ -1,4 +1,5 @@
 from rest_framework import permissions
+from rest_framework.exceptions import NotFound
 from rest_framework.viewsets import ModelViewSet
 from .models import Tag, Category, Task, Note, CustomUser
 from .serializer import CategorySerializer, TagSerializer, TaskSerializer, NoteSerializer, CustomUserSerializer
@@ -30,10 +31,13 @@ class NoteViewSet(ModelViewSet):
     serializer_class = NoteSerializer
 
     def get_queryset(self):
-        return Note.objects.filter(task_id=self.kwargs['task_pk'])
+        task_id = self.kwargs.get('task_pk')
+        return Note.objects.filter(task_id=task_id)
 
     def perform_create(self, serializer):
-        serializer.save(task_id=self.kwargs['task_pk'])
+        task_id = self.kwargs.get('task_pk')
+        task = Task.objects.get(pk=task_id)  # This raises DoesNotExist if not found
+        serializer.save(task=task)
 
 class CustomUserViewSet(ModelViewSet):
     queryset = CustomUser.objects.all()
