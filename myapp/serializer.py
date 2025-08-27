@@ -44,22 +44,18 @@ class TagSerializer(serializers.Serializer):
         else:
             return "Too Many"
 
-
-class TaskSerializer(serializers.ModelSerializer):
-    tags = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=Tag.objects.all()
-    )
-
-    class Meta:
-        model = Task
-        fields = '__all__'
-
-
 class NoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Note
-        fields = ['id', 'content']
+        fields = "__all__"
+
+class TaskSerializer(serializers.ModelSerializer):
+    notes = NoteSerializer(many=True, read_only=True)  # nested notes
+    tags = serializers.StringRelatedField(many=True, read_only=True)  # or use TagSerializer
+
+    class Meta:
+        model = Task
+        fields = "__all__"
 
 class CustomUserSerializer(serializers.ModelSerializer):
     # Explicitly declare so DRF doesn't inherit model's optional behavior

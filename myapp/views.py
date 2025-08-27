@@ -31,13 +31,12 @@ class NoteViewSet(ModelViewSet):
     serializer_class = NoteSerializer
 
     def get_queryset(self):
-        task_id = self.kwargs.get('task_pk')
+        task_id = self.kwargs["task_pk"]  # task_pk comes from nested router
         return Note.objects.filter(task_id=task_id)
 
     def perform_create(self, serializer):
-        task_id = self.kwargs.get('task_pk')
-        task = Task.objects.get(pk=task_id)  # This raises DoesNotExist if not found
-        serializer.save(task=task)
+        task_id = self.kwargs["task_pk"]
+        serializer.save(task_id=task_id)
 
 class CustomUserViewSet(ModelViewSet):
     queryset = CustomUser.objects.all()
