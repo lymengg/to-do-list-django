@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Task, Category, Tag, CustomUser
+from .models import Task, Category, Tag
 
 
 # Register your models here.
@@ -46,7 +46,3 @@ class TagAdmin(admin.ModelAdmin):
         return tag.tasks.count()
 
     task_count.short_description = 'Count'
-
-@admin.register(CustomUser)
-class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name', 'phone_number', 'address', 'is_staff')

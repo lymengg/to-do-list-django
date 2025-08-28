@@ -1,8 +1,8 @@
 from rest_framework import permissions
 from rest_framework.exceptions import NotFound
 from rest_framework.viewsets import ModelViewSet
-from .models import Tag, Category, Task, Note, CustomUser
-from .serializer import CategorySerializer, TagSerializer, TaskSerializer, NoteSerializer, CustomUserSerializer
+from .models import Tag, Category, Task, Note
+from .serializer import CategorySerializer, TagSerializer, TaskSerializer, NoteSerializer
 
 
 class CategoryViewSet(ModelViewSet):
@@ -37,7 +37,3 @@ class NoteViewSet(ModelViewSet):
     def perform_create(self, serializer):
         task_id = self.kwargs["task_pk"]
         serializer.save(task_id=task_id)
-
-class CustomUserViewSet(ModelViewSet):
-    queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer

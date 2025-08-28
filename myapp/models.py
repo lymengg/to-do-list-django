@@ -1,10 +1,13 @@
-from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.models import User
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     hex_color = models.CharField(max_length=50, null=True)  # Default to white
+
+    class Meta:
+        db_table = "category"
 
     def __str__(self):
         return self.name
@@ -12,6 +15,9 @@ class Category(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        db_table = "tag"
 
     def __str__(self):
         return self.name
@@ -38,6 +44,9 @@ class Task(models.Model):
     status = models.CharField(max_length=20, choices=STATUS, default='INIT')
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        db_table = "task"
+
     def __str__(self):
         return self.title
 
@@ -49,44 +58,18 @@ class Note(models.Model):
     def __str__(self):
         return self.content
 
-class CustomUserManager(BaseUserManager):
-    def create_user(self, username, email, address, first_name=None, last_name=None, password=None, **extra_fields):
-        if not username or username.strip() == '':
-            raise ValueError('The Username field is required and cannot be empty.')
-        if not email or email.strip() == '':
-            raise ValueError('The Email field is required and cannot be empty.')
-        if not address or address.strip() == '':
-            raise ValueError('The Address field is required and cannot be empty.')
 
-        email = self.normalize_email(email)
-        user = self.model(
-            username=username,
-            email=email,
-            address=address,
-            first_name=first_name,
-            last_name=last_name,
-            **extra_fields
-        )
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
+class UserProfile(models.Model):
+    # Composition: keep a one-to-one relation with the built-in User
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
 
-    def create_superuser(self, username, email, address, first_name=None, last_name=None, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
+    # Extra fields
+    address = models.CharField(max_length=255, blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    birthdate = models.DateField(blank=True, null=True)
 
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
+    class Meta:
+        db_table = "user_profile"
 
-        return self.create_user(username, email, address, first_name, last_name, password, **extra_fields)
-
-class CustomUser(AbstractUser):
-    email = models.EmailField(max_length=255, blank=False)
-    phone_number = models.CharField(max_length=15, blank=True)
-    address = models.CharField(max_length=255, blank=False)  # Make required here
-
-    REQUIRED_FIELDS = ['email', 'address']
-
-    objects = CustomUserManager()
+    def __str__(self):
+        return f"{self.user.username}'s Profile"
