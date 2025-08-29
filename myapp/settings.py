@@ -35,9 +35,25 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'myapp.apps.MyAppConfig',
-    'rest_framework'
+    'myapp',
+    'rest_framework',
+    'djoser',
+    'rest_framework.authtoken'
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',  # or SimpleJWT
+    ],
+}
+
+DJOSER = {
+    "SERIALIZERS": {
+        "user_create": "myapp.serializer.UserCreateSerializer",  # for creating user
+        "user": "myapp.serializer.UserSerializer",              # for response
+        "user_create_password_retype": "myapp.serializer.UserCreateSerializer",  # 👈 add this
+    }
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

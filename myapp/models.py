@@ -1,5 +1,5 @@
-from django.contrib.auth.models import User
 from django.db import models
+from django.contrib.auth import get_user_model
 
 
 class Category(models.Model):
@@ -57,6 +57,9 @@ class Note(models.Model):
 
     def __str__(self):
         return self.content
+
+
+User = get_user_model()
 
 
 class UserProfile(models.Model):

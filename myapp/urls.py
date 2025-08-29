@@ -15,4 +15,6 @@ urlpatterns = [
     # DRF auto-generated API endpoints
     path('api/', include(router.urls)),
     path('api/', include(nested_router.urls)),
+    path('auth/', include('djoser.urls')),  # basic user management
+    path('auth/', include('djoser.urls.authtoken')),
 ]
